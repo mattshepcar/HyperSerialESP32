@@ -27,6 +27,8 @@
 
 #include <Arduino.h>
 #include <NeoPixelBus.h>
+#include <WiFi.h>
+#include <PubSubClient.h>
 
 #if !defined(ARDUINO_LOLIN_S2_MINI) && ESP_ARDUINO_VERSION_MAJOR == 2 && ESP_ARDUINO_VERSION_MINOR ==0 && ESP_ARDUINO_VERSION_PATCH <= 5
     #error "Arduino ESP32 versions 2.0.0-2.0.5 are unsupported."
@@ -197,8 +199,21 @@ void processSerialTask(void * parameters)
 	}
 }
 
+WiFiClient espClient;
+PubSubClient client(espClient);
+
 void setup()
 {
+	WiFi.begin("Matt", "ArseOfPig2019!");
+	while (WiFi.waitForConnectResult() != WL_CONNECTED) 
+	{
+		delay(500);
+		ESP.restart();
+	}
+	client.setServer("10.0.0.2", 1883);
+	client.connect("HyperSerialESP32", "homeassistant", "idae0ohngo2eiHahgh4BeisheeThog8reiphobolu3lee1noh1xeshei2soozae7");
+	client.publish("hyperserialesp32/status", "online");
+
 	bool multicore = true;
 
 	// Init serial port
